@@ -1,4 +1,5 @@
 #' The Moore function
+#'
 #' Function to compute the Moore equation
 #'
 #' @param t a numeric vector

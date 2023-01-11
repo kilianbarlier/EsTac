@@ -21,3 +21,6 @@ f_moore() returns the evaluation of the Moore function
 The Moore function
 Function to compute the Moore equation
 }
+\examples{
+f_moore(seq(10,40,0.1), c(10,0.2,1,0.3), type = "min")
+}

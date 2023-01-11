@@ -2,8 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{f_imap}
 \alias{f_imap}
-\title{IMAP function
-Function to compute IMAP}
+\title{IMAP function}
 \usage{
 f_imap(t, p, type = "min")
 }
@@ -18,6 +17,8 @@ f_imap(t, p, type = "min")
 f_imap() returns the evaluation of IMAP
 }
 \description{
-IMAP function
 Function to compute IMAP
+}
+\examples{
+f_imap(seq(10,40,0.1), c(10,0.2,1,0.3,80), type = "min")
 }

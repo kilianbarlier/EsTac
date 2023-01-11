@@ -2,8 +2,7 @@
 % Please edit documentation in R/least_squares_method.R
 \name{estap}
 \alias{estap}
-\title{Models age performance relationship
-Function performing the least squares method to estimate the relation between age and performance}
+\title{Models age performance relationship}
 \usage{
 estap(
   age,
@@ -40,6 +39,5 @@ estap(
 estap() returns a list including results of the least squares method
 }
 \description{
-Models age performance relationship
 Function performing the least squares method to estimate the relation between age and performance
 }
