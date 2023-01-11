@@ -18,7 +18,23 @@ estap(
 )
 }
 \arguments{
-\item{x}{un vecteur numerique}
+\item{age}{un vecteur numerique}
+
+\item{performance}{un vecteur numerique}
+
+\item{FUN}{un vecteur numerique}
+
+\item{nbpara}{un vecteur numerique}
+
+\item{niter}{un vecteur numerique}
+
+\item{borne}{un vecteur numerique}
+
+\item{initial}{un vecteur numerique}
+
+\item{plot}{un vecteur numerique}
+
+\item{grid.age}{un vecteur numerique}
 }
 \value{
 la fonction renvoie la moyenne d'un vecteur

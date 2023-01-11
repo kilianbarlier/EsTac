@@ -16,7 +16,15 @@ estac <- function(x){
 #' moyenne d’un vecteur
 #' Une fonction pour faire une moyenne en enlevant les valeurs manquantes
 #'
-#' @param x un vecteur numerique
+#' @param age un vecteur numerique
+#' @param performance un vecteur numerique
+#' @param FUN un vecteur numerique
+#' @param nbpara un vecteur numerique
+#' @param niter un vecteur numerique
+#' @param borne un vecteur numerique
+#' @param initial un vecteur numerique
+#' @param plot un vecteur numerique
+#' @param grid.age un vecteur numerique
 #'
 #' @return la fonction renvoie la moyenne d'un vecteur
 #' @import ggplot2
