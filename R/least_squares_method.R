@@ -2,17 +2,17 @@
 #'
 #' Function performing the least squares method to estimate the relation between age and performance.
 #'
-#' @param age a vector containing age data
-#' @param performance a vector containing performance data
-#' @param FUN the function to fit
-#' @param nbpara the number of parameters in FUN
-#' @param niter un vecteur numerique
-#' @param borne a vector containing the lower bound of the parameters
-#' @param initial a vector containing initial values of the parameters
-#' @param plot boolean indicating whether a graph of the result should be displayed0
-#' @param grid.age a vector of x.axis values
+#' @param age a vector containing age data.
+#' @param performance a vector containing performance data.
+#' @param FUN the function to fit.
+#' @param nbpara the number of parameters in FUN.
+#' @param niter number of iterations (10 by default).
+#' @param borne a vector containing the lower bound of the parameters (-Inf by default).
+#' @param initial a vector containing initial values of the parameters (runif(nbpara) by default).
+#' @param plot boolean indicating whether a graph of the result should be displayed (FALSE by default).
+#' @param grid.age a vector of x.axis values (seq(min(age), max(age), 0.1) by default).
 #'
-#' @return estap() returns a list including results of the least squares method
+#' @return estap() returns a list including results of the least squares method.
 #'
 #' @importFrom stats runif rnorm nlminb
 #' @importFrom ggplot2 ggplot geom_point aes geom_line theme_minimal

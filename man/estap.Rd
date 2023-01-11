@@ -17,26 +17,26 @@ estap(
 )
 }
 \arguments{
-\item{age}{a vector containing age data}
+\item{age}{a vector containing age data.}
 
-\item{performance}{a vector containing performance data}
+\item{performance}{a vector containing performance data.}
 
-\item{FUN}{the function to fit}
+\item{FUN}{the function to fit.}
 
-\item{nbpara}{the number of parameters in FUN}
+\item{nbpara}{the number of parameters in FUN.}
 
-\item{niter}{un vecteur numerique}
+\item{niter}{number of iterations (10 by default).}
 
-\item{borne}{a vector containing the lower bound of the parameters}
+\item{borne}{a vector containing the lower bound of the parameters (-Inf by default).}
 
-\item{initial}{a vector containing initial values of the parameters}
+\item{initial}{a vector containing initial values of the parameters (runif(nbpara) by default).}
 
-\item{plot}{boolean indicating whether a graph of the result should be displayed0}
+\item{plot}{boolean indicating whether a graph of the result should be displayed (FALSE by default).}
 
-\item{grid.age}{a vector of x.axis values}
+\item{grid.age}{a vector of x.axis values (seq(min(age), max(age), 0.1) by default).}
 }
 \value{
-estap() returns a list including results of the least squares method
+estap() returns a list including results of the least squares method.
 }
 \description{
 Function performing the least squares method to estimate the relation between age and performance.

@@ -7,18 +7,20 @@
 f_imap(t, p, type = "min")
 }
 \arguments{
-\item{t}{a numeric vector}
+\item{t}{a numeric vector.}
 
-\item{p}{a vector of the five parameters}
+\item{p}{a vector of the five parameters.}
 
-\item{type}{indicates whether the function estimates a performance to be maximised ("max") or minimised ("min")}
+\item{type}{("min" by default) indicates whether the function estimates a performance to be maximised ("max") or minimised ("min").}
 }
 \value{
-f_imap() returns the evaluation of IMAP
+f_imap() returns the evaluation of IMAP.
 }
 \description{
-Function to compute IMAP
+Function to compute IMAP.
 }
 \examples{
-f_imap(seq(10,40,0.1), c(10,0.2,1,0.3,80), type = "min")
+age <- seq(10,40,0.1)
+parameters <- c(10,0.2,1,0.3,80)
+f_imap(age, parameters, type = "min")
 }

@@ -7,18 +7,20 @@
 f_moore(t, p, type = "min")
 }
 \arguments{
-\item{t}{a numeric vector}
+\item{t}{a numeric vector.}
 
-\item{p}{a vector of the four parameters}
+\item{p}{a vector of the four parameters.}
 
-\item{type}{indicates whether the function estimates a performance to be maximised ("max") or minimised ("min")}
+\item{type}{("min" by default) indicates whether the function estimates a performance to be maximised ("max") or minimised ("min").}
 }
 \value{
-f_moore() returns the evaluation of the Moore function
+f_moore() returns the evaluation of the Moore function.
 }
 \description{
-Function to compute the Moore equation
+Function to compute the Moore equation.
 }
 \examples{
-f_moore(seq(10,40,0.1), c(10,0.2,1,0.3), type = "min")
+age <- seq(10,40,0.1)
+parameters <- c(10,0.2,1,0.3)
+f_moore(age, parameters, type = "min")
 }
