@@ -6,9 +6,9 @@
 #' @return la fonction renvoie la moyenne d'un vecteur
 #' @import magrittr
 #' @importFrom stats na.omit
-#' moyenne(c(4,5))
 #' @export
 estac <- function(x){
   x <- x %>% na.omit()
   sum(x)/length(x)
 }
+

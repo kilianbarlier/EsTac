@@ -2,5 +2,4 @@
 
 export(estac)
 import(magrittr)
-importFrom(stats,"moyenne(c(4,5))")
 importFrom(stats,na.omit)
