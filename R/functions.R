@@ -1,21 +1,6 @@
 #' moyenne d’un vecteur
 #' Une fonction pour faire une moyenne en enlevant les valeurs manquantes
 #'
-#' @param x un vecteur numerique
-#'
-#' @return la fonction renvoie la moyenne d'un vecteur
-#' @import magrittr
-#' @importFrom stats na.omit
-#' @export
-estac <- function(x){
-  x <- x %>% na.omit()
-  sum(x)/length(x)
-}
-
-
-#' moyenne d’un vecteur
-#' Une fonction pour faire une moyenne en enlevant les valeurs manquantes
-#'
 #' @param age un vecteur numerique
 #' @param performance un vecteur numerique
 #' @param FUN un vecteur numerique
