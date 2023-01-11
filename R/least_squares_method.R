@@ -1,4 +1,5 @@
 #' Models age performance relationship
+#'
 #' Function performing the least squares method to estimate the relation between age and performance
 #'
 #' @param age a vector containing age data
