@@ -1,10 +1,18 @@
 Package: EsTac
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Package containing utils for estimate performance trajectories
+Version: 0.1
 Authors@R: 
-    person("Kilian", "Barlier", , "kilian.barlier@grand-insep.fr", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+    c(person(given = "Kilian",
+             family = "Barlier",
+             email = "kilian.barlier@grand-insep.fr",
+             role = c("aut", "cre"),
+             comment = c(ORCID = "YOUR-ORCID-ID")),
+      person(given = "Quentin",
+             family = "De Larochelambert",
+             email = "quentin.delarochelambert@insep.fr",
+             role = "aut",
+             comment = c(ORCID = "YOUR-ORCID-ID")))
+Description: This package was built to fit functions to sport performance data. It also contains equations, like Moore one or IMAP, describing the age performance relationship.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
@@ -12,5 +20,4 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.0
 Imports: 
     ggplot2,
-    magrittr,
     stats
