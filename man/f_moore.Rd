@@ -2,8 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{f_moore}
 \alias{f_moore}
-\title{The Moore function
-Function to compute the Moore equation}
+\title{The Moore function}
 \usage{
 f_moore(t, p, type = "min")
 }
@@ -18,7 +17,6 @@ f_moore(t, p, type = "min")
 f_moore() returns the evaluation of the Moore function
 }
 \description{
-The Moore function
 Function to compute the Moore equation
 }
 \examples{

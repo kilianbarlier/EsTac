@@ -39,5 +39,5 @@ estap(
 estap() returns a list including results of the least squares method
 }
 \description{
-Function performing the least squares method to estimate the relation between age and performance
+Function performing the least squares method to estimate the relation between age and performance.
 }
