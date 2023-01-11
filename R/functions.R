@@ -5,13 +5,23 @@
 #'
 #' @return la fonction renvoie la moyenne d'un vecteur
 #' @import magrittr
-#' @s stats na.omit
+#' @importFrom stats na.omit
 #' @export
 estac <- function(x){
   x <- x %>% na.omit()
   sum(x)/length(x)
 }
 
+
+#' moyenne d’un vecteur
+#' Une fonction pour faire une moyenne en enlevant les valeurs manquantes
+#'
+#' @param x un vecteur numerique
+#'
+#' @return la fonction renvoie la moyenne d'un vecteur
+#' @import ggplot2
+#' @import stats
+#' @export
 estap=function(age,performance,FUN,nbpara,niter=10,borne=-Inf, initial=runif(nbpara),plot=FALSE,grid.age=seq(min(age),max(age),0.1)){
 
   SQ_methode=function(p){
