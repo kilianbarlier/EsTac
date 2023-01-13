@@ -15,7 +15,7 @@
 #' @return estap() returns a list including results of the least squares method.
 #'
 #' @importFrom stats runif rnorm nlminb
-#' @importFrom ggplot2 ggplot geom_point aes geom_line theme_minimal
+#' @importFrom ggplot2 ggplot geom_point aes geom_line labs theme_linedraw theme element_text
 #' @export
 estap <- function(age, performance, FUN, nbpara, niter = 10, borne = -Inf,
                   initial = runif(nbpara), plot = FALSE, grid.age = seq(min(age), max(age), 0.1)){
@@ -55,11 +55,14 @@ estap <- function(age, performance, FUN, nbpara, niter = 10, borne = -Inf,
   R2 <- 1 - (sum((performance-fit)^2) / sum((performance-mean(performance))^2))
   R2a <- 1 - ((sum((performance-fit)^2) / (length(performance)-nbpara-1)) / (sum((performance-mean(performance))^2) / (length(performance)-1)))
 
-  if (plot == T){
+  if (plot == TRUE){
     p <- ggplot() +
-      geom_point(data = perf, aes(x = age, y = performance)) +
-      geom_line(data = pred, aes(x = age, y = pred), col = "red") +
-      theme_minimal()
+      geom_point(data = perf, aes(x = age, y = performance), size = 2, shape = 21, fill = "grey50") +
+      geom_line(data = pred, aes(x = age, y = pred), linewidth = 2, col = "red") +
+      labs(x = "Age", y = "Performance", title = "Least squares method") +
+      theme_linedraw() +
+      theme(plot.title = element_text(hjust = 0.5, size = 18, face = "bold"), axis.text = element_text(size = 11),
+            axis.title.x = element_text(size = 14), axis.title.y = element_text(size = 14))
     print(p)
   }
 
