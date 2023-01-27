@@ -48,3 +48,42 @@ f_imap <- function(t, p, type = "min"){
 
   return(equation)
 }
+
+
+#' compute_couloir function
+#'
+#' Function to compute the performance deciles by age.
+#'
+#' @param data_raw_name a character stating the name of the dataset.
+#' @param var_name_id a character stating the name of the id variable.
+#' @param var_name_age a character stating the name of the age variable.
+#' @param var_name_perf a character stating the name of the performance variable.
+#'
+#' @return compute_couloir() returns a dataset with the performance deciles computed by age.
+#'
+#' @importFrom sqldf sqldf
+#' @export
+#'
+#' @examples
+#' # compute_couloir("dt", "licence", "age", "temps")
+compute_couloir <- function(data_raw_name, var_name_id, var_name_age, var_name_perf){
+  ## ---- In case RMySQL library is loaded ---- ##
+  options(sqldf.driver = "SQLite")
+
+  ## ---- SQL query ---- ##
+  data <- sqldf(paste0(
+    "SELECT age_entier, decile, MIN(performance) AS perf_min, MAX(performance) AS perf_max ",
+    "FROM (",
+    "SELECT *, ntile(10) OVER (PARTITION BY age_entier ORDER BY performance) as decile ",
+    "FROM (",
+    "SELECT ",var_name_id,", ROUND(",var_name_age,") as age_entier, MIN(",var_name_perf,") as performance ",
+    "FROM '",data_raw_name,"' ",
+    "GROUP BY ",var_name_id,", ROUND(",var_name_age,")",
+    ")",
+    ") ",
+    "GROUP BY decile, age_entier"
+  ))
+
+  return(data)
+}
+

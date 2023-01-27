@@ -52,8 +52,8 @@ estap <- function(age, performance, FUN, nbpara, niter = 10, borne = -Inf,
     pred = fit
   )
 
-  R2=1-(sum((performance-FUN(age,best_param))^2)/sum((performance-mean(performance))^2))
-  R2a=1-((sum((performance-FUN(age,best_param))^2)/(length(performance)-nbpara-1))/(sum((performance-mean(performance))^2)/(length(performance)-1)))
+  R2 <- 1 - (sum((performance-FUN(age,best_param))^2) / sum((performance-mean(performance))^2))
+  R2a <- 1 - ((sum((performance-FUN(age,best_param))^2)/(length(performance)-nbpara-1)) / (sum((performance-mean(performance))^2)/(length(performance)-1)))
 
   if (plot == TRUE){
     p <- ggplot() +
@@ -66,7 +66,7 @@ estap <- function(age, performance, FUN, nbpara, niter = 10, borne = -Inf,
     print(p)
   }
 
-  result_final <- list(
+  final_result <- list(
     parametre = best_param,
     objectif = best_obj,
     R2 = R2,
@@ -75,6 +75,6 @@ estap <- function(age, performance, FUN, nbpara, niter = 10, borne = -Inf,
     perf_pic = perf_pic
   )
 
-  return(result_final)
+  return(final_result)
 }
 

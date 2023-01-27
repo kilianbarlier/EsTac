@@ -1,6 +1,6 @@
 Package: EsTac
 Title: Package containing utils for estimate performance trajectories
-Version: 0.1
+Version: 0.2
 Authors@R: 
     c(person(given = "Kilian",
              family = "Barlier",
@@ -20,4 +20,5 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.0
 Imports: 
     ggplot2,
+    sqldf,
     stats
