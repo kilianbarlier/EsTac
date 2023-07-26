@@ -8,3 +8,5 @@
 # usethis::use_package("DBI")
 # usethis::use_package("RSQLite")
 # usethis::use_package("shinyjs")
+# usethis::use_package("data.table")
+# usethis::use_package("shinyWidgets")
