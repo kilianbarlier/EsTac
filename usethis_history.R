@@ -10,3 +10,4 @@
 # usethis::use_package("shinyjs")
 # usethis::use_package("data.table")
 # usethis::use_package("shinyWidgets")
+# usethis::use_package("rlang")
