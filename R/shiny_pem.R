@@ -109,6 +109,121 @@ compute_estimation <- function(parametre, info, FUN, type = "min", min_age = 10,
 }
 
 
+#' Compute the derivative
+#'
+#' Function to compute the derivative of the estimation.
+#'
+#' @param parametre a data.frame of the parameters estimated by the model.
+#' @param info a data.frame containing the information of the transformation used on the data to compute the model.
+#' @param FUN the function to fit.
+#' @param type ("min" by default) indicates whether the function estimates a performance to be maximised ("max") or minimised ("min").
+#' @param min_age the minimum age value to compute the estimation (10 by default).
+#' @param max_age the maximum age value to compute the estimation (50 by default).
+#'
+#' @return compute_deriv1() returns a data.frame.
+#'
+#' @importFrom data.table rbindlist
+#' @export
+compute_deriv1 <- function(parametre, info, FUN, type = "min", min_age = 10, max_age = 50){
+
+  age <- seq(
+    ((min_age-info$mean_age) / info$sd_age) - info$min_age,
+    ((max_age-info$mean_age) / info$sd_age) - info$min_age,
+    0.1
+  )
+
+  if (ncol(parametre) == 6){
+    var <- c("a","b","c","d","e")
+  } else if (ncol(parametre) == 5){
+    var <- c("a","b","c","d")
+  }
+
+  estimation <- data.frame(data.table::rbindlist(apply(parametre, 1, function(x){
+    param <- as.numeric(c(t(x[var])))
+    value <- FUN(age,param,type)
+    deriv1 <- diff(value)/diff(age)
+    return(data.frame(
+      age = age[-1],
+      deriv1 = deriv1,
+      id = unique(x["id"])
+    ))
+  })))
+  estimation$age <- ((estimation$age + info$min_age) * info$sd_age) + info$mean_age
+  estimation$deriv1 <- ((estimation$deriv1 + info$min_perf) * info$sd_perf) + info$mean_perf
+
+  quant <- seq(0.05,0.95,0.05)
+  estimation <- data.frame(data.table::rbindlist(by(estimation,estimation$id,function(y){
+    t <- data.table::rbindlist(tapply(y$deriv1,y$age,function(x){
+      data.frame(borne = quant, deriv1 = quantile(x,quant))
+    }), idcol = "age")
+    t$age = as.numeric(t$age)
+    return(t)
+  }), idcol = "id"))
+
+  estimation <- reshape(estimation, idvar = c("id","age"), timevar = "borne", direction = "wide")
+
+  return(estimation)
+}
+
+
+#' Compute the derivative of the derivative
+#'
+#' Function to compute the derivative of the progression
+#'
+#' @param parametre a data.frame of the parameters estimated by the model.
+#' @param info a data.frame containing the information of the transformation used on the data to compute the model.
+#' @param FUN the function to fit.
+#' @param type ("min" by default) indicates whether the function estimates a performance to be maximised ("max") or minimised ("min").
+#' @param min_age the minimum age value to compute the estimation (10 by default).
+#' @param max_age the maximum age value to compute the estimation (50 by default).
+#'
+#' @return compute_deriv2() returns a data.frame.
+#'
+#' @importFrom data.table rbindlist
+#' @export
+compute_deriv2 <- function(parametre, info, FUN, type = "min", min_age = 10, max_age = 50){
+
+  age <- seq(
+    ((min_age-info$mean_age) / info$sd_age) - info$min_age,
+    ((max_age-info$mean_age) / info$sd_age) - info$min_age,
+    0.1
+  )
+
+  if (ncol(parametre) == 6){
+    var <- c("a","b","c","d","e")
+  } else if (ncol(parametre) == 5){
+    var <- c("a","b","c","d")
+  }
+
+  estimation <- data.frame(data.table::rbindlist(apply(parametre, 1, function(x){
+    param <- as.numeric(c(t(x[var])))
+    value <- FUN(age,param,type)
+    deriv1 <- diff(value)/diff(age)
+    deriv2 <- diff(deriv1)/diff(age[-1])
+    return(data.frame(
+      age = age[c(-1,-2)],
+      deriv2 = deriv2,
+      id = unique(x["id"])
+    ))
+  })))
+  estimation$age <- ((estimation$age + info$min_age) * info$sd_age) + info$mean_age
+  estimation$deriv2 <- ((estimation$deriv2 + info$min_perf) * info$sd_perf) + info$mean_perf
+
+  quant <- seq(0.05,0.95,0.05)
+  estimation <- data.frame(data.table::rbindlist(by(estimation,estimation$id,function(y){
+    t <- data.table::rbindlist(tapply(y$deriv2,y$age,function(x){
+      data.frame(borne = quant, deriv2 = quantile(x,quant))
+    }), idcol = "age")
+    t$age = as.numeric(t$age)
+    return(t)
+  }), idcol = "id"))
+
+  estimation <- reshape(estimation, idvar = c("id","age"), timevar = "borne", direction = "wide")
+
+  return(estimation)
+}
+
+
 #' Plot the estimation
 #'
 #' Function to compute and plot the estimation of the performance.
@@ -148,13 +263,15 @@ plot_estimation <- function(data, parametre, info, FUN, type = "min", min_age = 
       geom_line(aes(x = age, y = pred.0.5, col = id, group = 1,
                     text = paste("Athlète :",id,
                                  "<br>Performance :",round(pred.0.5,2),
-                                 "<br>Âge :",round(age,2))), show.legend = FALSE, linewidth = 1.5)
+                                 "<br>Âge :",round(age,2))), show.legend = FALSE, linewidth = 1.5) +
+      labs(x = "Âge", y = "Performance", title = paste("Estimation",unique(parametre$id)))
   } else {
     p <- p +
       geom_line(aes(x = age, y = pred.0.5, col = id, group = id,
                     text = paste("Athlète :",id,
                                  "<br>Performance :",round(pred.0.5,2),
-                                 "<br>Âge :",round(age,2))), show.legend = FALSE, linewidth = 1.5)
+                                 "<br>Âge :",round(age,2))), show.legend = FALSE, linewidth = 1.5)+
+      labs(x = "Âge", y = "Performance", title = "Estimations")
   }
 
   ## ---- Add data ---- ##
@@ -167,9 +284,126 @@ plot_estimation <- function(data, parametre, info, FUN, type = "min", min_age = 
   }
 
   p <- p +
-    labs(x = "Âge", y = "Performance", title = paste("Estimation",data$id)) +
     theme_bw() +
     theme(plot.title = element_text(hjust = 0.5))
+
+  return(p)
+}
+
+
+#' Plot the progression
+#'
+#' Function to compute and plot the progression of an athlete.
+#'
+#' @param parametre a data.frame of the parameters estimated by the model.
+#' @param info a data.frame containing the information of the transformation used on the data to compute the model.
+#' @param FUN the function to fit.
+#' @param type ("min" by default) indicates whether the function estimates a performance to be maximised ("max") or minimised ("min").
+#' @param min_age minimum value for x axis (10 by default).
+#' @param max_age maximum value for x axis (50 by default).
+#'
+#' @return plot_progression() returns a ggplot2 object.
+#'
+#' @import ggplot2
+#' @export
+plot_progression <- function(parametre, info, FUN, type = "min", min_age = 10, max_age = 50){
+
+  estimation <- compute_deriv1(parametre, info, FUN, type, min_age, max_age)
+
+  ## ---- Plot estimation ---- ##
+  p <- ggplot(estimation) +
+    geom_ribbon(aes(x = age, ymin = deriv1.0.05, ymax = deriv1.0.95, fill = id, group = id,
+                    text = paste("Athlète :",id,
+                                 "<br>Progression min :",round(deriv1.0.05,2),
+                                 "<br>Progression max :",round(deriv1.0.95,2),
+                                 "<br>Âge :",round(age,2))), alpha = 0.2, show.legend = FALSE) +
+    geom_ribbon(aes(x = age, ymin = deriv1.0.1, ymax = deriv1.0.9, fill = id, group = id,
+                    text = paste("Athlète :",id,
+                                 "<br>Progression min :",round(deriv1.0.1,2),
+                                 "<br>Progression max :",round(deriv1.0.9,2),
+                                 "<br>Âge :",round(age,2))), alpha = 0.3, show.legend = FALSE)
+
+  ## ---- Add median ---- ##
+  if (length(unique(parametre$id)) == 1){
+    p <- p +
+      geom_line(aes(x = age, y = deriv1.0.5, col = id, group = 1,
+                    text = paste("Athlète :",id,
+                                 "<br>Progression :",round(deriv1.0.5,2),
+                                 "<br>Âge :",round(age,2))), show.legend = FALSE, linewidth = 1.5) +
+      labs(x = "Âge", y = "Progression", title = paste("Progression",unique(parametre$id)))
+  } else {
+    p <- p +
+      geom_line(aes(x = age, y = deriv1.0.5, col = id, group = id,
+                    text = paste("Athlète :",id,
+                                 "<br>Progression :",round(deriv1.0.5,2),
+                                 "<br>Âge :",round(age,2))), show.legend = FALSE, linewidth = 1.5) +
+      labs(x = "Âge", y = "Progression", title = "Progressions")
+  }
+
+  ## ---- Add data ---- ##
+  p <- p +
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    geom_hline(yintercept = 0, color = "black")
+
+  return(p)
+}
+
+
+#' Plot the speed progression
+#'
+#' Function to compute and plot the speed progression of an athlete.
+#'
+#' @param parametre a data.frame of the parameters estimated by the model.
+#' @param info a data.frame containing the information of the transformation used on the data to compute the model.
+#' @param FUN the function to fit.
+#' @param type ("min" by default) indicates whether the function estimates a performance to be maximised ("max") or minimised ("min").
+#' @param min_age minimum value for x axis (10 by default).
+#' @param max_age maximum value for x axis (50 by default).
+#'
+#' @return plot_progression() returns a ggplot2 object.
+#'
+#' @import ggplot2
+#' @export
+plot_speed_progression <- function(parametre, info, FUN, type = "min", min_age = 10, max_age = 50){
+
+  estimation <- compute_deriv2(parametre, info, FUN, type, min_age, max_age)
+
+  ## ---- Plot estimation ---- ##
+  p <- ggplot(estimation) +
+    geom_ribbon(aes(x = age, ymin = deriv2.0.05, ymax = deriv2.0.95, fill = id, group = id,
+                    text = paste("Athlète :",id,
+                                 "<br>Vitesse de progression min :",round(deriv2.0.05,2),
+                                 "<br>Vitesse de progression max :",round(deriv2.0.95,2),
+                                 "<br>Âge :",round(age,2))), alpha = 0.2, show.legend = FALSE) +
+    geom_ribbon(aes(x = age, ymin = deriv2.0.1, ymax = deriv2.0.9, fill = id, group = id,
+                    text = paste("Athlète :",id,
+                                 "<br>Vitesse de progression min :",round(deriv2.0.1,2),
+                                 "<br>Vitesse de progression max :",round(deriv2.0.9,2),
+                                 "<br>Âge :",round(age,2))), alpha = 0.3, show.legend = FALSE)
+
+  ## ---- Add median ---- ##
+  if (length(unique(parametre$id)) == 1){
+    p <- p +
+      geom_line(aes(x = age, y = deriv2.0.5, col = id, group = 1,
+                    text = paste("Athlète :",id,
+                                 "<br>Vitesse de progression :",round(deriv2.0.5,2),
+                                 "<br>Âge :",round(age,2))), show.legend = FALSE, linewidth = 1.5) +
+      labs(x = "Âge", y = "Vitesse de progression", title = paste("Vitesse de progression",unique(parametre$id)))
+  } else {
+    p <- p +
+      geom_line(aes(x = age, y = deriv2.0.5, col = id, group = id,
+                    text = paste("Athlète :",id,
+                                 "<br>Vitesse de progression :",round(deriv2.0.5,2),
+                                 "<br>Âge :",round(age,2))), show.legend = FALSE, linewidth = 1.5) +
+      labs(x = "Âge", y = "Vitesse de progression", title = "Vitesses de progressions")
+  }
+
+  ## ---- Add data ---- ##
+  p <- p +
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    geom_hline(yintercept = 0, color = "black")
 
   return(p)
 }
@@ -308,6 +542,24 @@ epem <- function(args, type = "max", table_name = "parameter", info_table_name =
       p <- plot_estimation(data = NULL, parametre = r$data, info = r$info, FUN = r$fun, type = type)
 
       ggplotly(p + labs(x = "Âge", y = "Performance", col = "Athlète") +
+                 theme(axis.title.x = element_text(size = 12), axis.title.y = element_text(size = 12)),
+               tooltip = "text") %>%
+        layout(legend = list(orientation = "h", x = 0, y = -0.2))
+    })
+
+    output$progression <- renderPlotly({
+      p <- plot_progression(parametre = r$data, info = r$info, FUN = r$fun, type = type)
+
+      ggplotly(p + labs(x = "Âge", y = "Progression", col = "Athlète") +
+                 theme(axis.title.x = element_text(size = 12), axis.title.y = element_text(size = 12)),
+               tooltip = "text") %>%
+        layout(legend = list(orientation = "h", x = 0, y = -0.2))
+    })
+
+    output$vitesse <- renderPlotly({
+      p <- plot_speed_progression(parametre = r$data, info = r$info, FUN = r$fun, type = type)
+
+      ggplotly(p + labs(x = "Âge", y = "Vitesse de progression", col = "Athlète") +
                  theme(axis.title.x = element_text(size = 12), axis.title.y = element_text(size = 12)),
                tooltip = "text") %>%
         layout(legend = list(orientation = "h", x = 0, y = -0.2))
