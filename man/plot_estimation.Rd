@@ -4,16 +4,34 @@
 \alias{plot_estimation}
 \title{Plot the estimation}
 \usage{
-plot_estimation(reactive, type = "max")
+plot_estimation(
+  data,
+  parametre,
+  info,
+  FUN,
+  type = "min",
+  min_age = 10,
+  max_age = 50
+)
 }
 \arguments{
-\item{reactive}{a list (reactive of the shiny app created by 'epem' function).}
+\item{data}{a data.frame of the performance realized by the athlete (can be NULL).}
 
-\item{type}{indicates whether performance is to be maximized or minimized ('max' by default).}
+\item{parametre}{a data.frame of the parameters estimated by the model.}
+
+\item{info}{a data.frame containing the information of the transformation used on the data to compute the model.}
+
+\item{FUN}{the function to fit.}
+
+\item{type}{("min" by default) indicates whether the function estimates a performance to be maximised ("max") or minimised ("min").}
+
+\item{min_age}{minimum value for x axis (10 by default).}
+
+\item{max_age}{maximum value for x axis (50 by default).}
 }
 \value{
-plot_estimation() returns a plotly object.
+plot_estimation() returns a ggplot2 object.
 }
 \description{
-Function to plot the estimation of the performance.
+Function to compute and plot the estimation of the performance.
 }

@@ -4,12 +4,12 @@
 \alias{get_data}
 \title{Import data from SQL database}
 \usage{
-get_data(query, path)
+get_data(query, args)
 }
 \arguments{
 \item{query}{a SQL query.}
 
-\item{path}{the path where to find the SQL database.}
+\item{args}{list of arguments for dbConnect function.}
 }
 \value{
 get_data() returns a dataframe.

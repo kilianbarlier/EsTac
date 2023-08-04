@@ -186,10 +186,6 @@ estap <- function(age, perf, FUN, nbpara, niter = 10, borne = -Inf,
     age = age,
     perf = perf
   )
-  estimation <- data.frame(
-    age = grid.age,
-    pred = fit
-  )
 
   R2 <- compute_r2(age, perf, best_param, FUN)
   R2a <- compute_r2a(age, perf, best_param, FUN)
@@ -205,8 +201,7 @@ estap <- function(age, perf, FUN, nbpara, niter = 10, borne = -Inf,
     R2 = R2,
     R2a = R2a,
     age_pic = age_pic,
-    perf_pic = perf_pic,
-    fit = estimation
+    perf_pic = perf_pic
   )
 
   return(final_result)

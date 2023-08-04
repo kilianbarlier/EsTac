@@ -1,6 +1,6 @@
 Package: EsTac
 Title: Package containing utils for estimate performance trajectories
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: 
     c(person(given = "Kilian",
              family = "Barlier",

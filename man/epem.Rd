@@ -4,14 +4,21 @@
 \alias{epem}
 \title{Explore a performance estimation model}
 \usage{
-epem(path, type = "max", table_name = "parameter")
+epem(
+  args,
+  type = "max",
+  table_name = "parameter",
+  info_table_name = "transformation_info"
+)
 }
 \arguments{
-\item{path}{the path where to find the SQL database.}
+\item{args}{list of arguments required by get_data function.}
 
 \item{type}{indicates whether performance is to be maximized or minimized ('max' by default).}
 
 \item{table_name}{name of the SQL table containing the parameters ('parameter' by default).}
+
+\item{info_table_name}{name of the SQL table containing the transformation informations ('transformation_info' by default).}
 }
 \value{
 epem() returns a shiny app.

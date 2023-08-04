@@ -3,15 +3,16 @@
 #' Function to connect to a SQL database and import data.
 #'
 #' @param query a SQL query.
-#' @param path the path where to find the SQL database.
+#' @param args list of arguments for dbConnect function.
 #'
 #' @return get_data() returns a dataframe.
 #'
 #' @importFrom RSQLite SQLite
 #' @importFrom DBI dbConnect dbDisconnect dbGetQuery
 #' @export
-get_data <- function(query, path){
-  db <- dbConnect(SQLite(), path)
+get_data <- function(query, args){
+
+  db <- do.call(dbConnect,args)
   on.exit(dbDisconnect(db))
   data <- dbGetQuery(db ,query)
 
@@ -36,6 +37,7 @@ get_data <- function(query, path){
 #' @examples
 #' # compute_couloir("dt", "licence", "age", "temps")
 compute_couloir <- function(data_raw_name, var_name_id, var_name_age, var_name_perf){
+
   ## ---- In case RMySQL library is loaded ---- ##
   options(sqldf.driver = "SQLite")
 
@@ -61,19 +63,18 @@ compute_couloir <- function(data_raw_name, var_name_id, var_name_age, var_name_p
 #'
 #' Function to compute the performance deciles by age.
 #'
+#' @param con ?.
 #' @param data_raw_name a character stating the name of the dataset.
 #' @param var_name_id a character stating the name of the id variable.
 #' @param var_name_age a character stating the name of the age variable.
 #' @param var_name_perf a character stating the name of the performance variable.
+#' @param nb_couloir ?.
 #'
-#' @return compute_couloir() returns a dataset with the performance deciles computed by age.
+#' @return compute_couloir_SQL() returns a dataset with the performance deciles computed by age.
 #'
-#' @importFrom sqldf sqldf
+#' @importFrom DBI dbGetQuery
 #' @export
-#'
-#' @examples
-#' # compute_couloir("dt", "licence", "age", "temps")
-compute_couloir_SQL <- function(con,data_raw_name, var_name_id, var_name_age, var_name_perf,nb_couloir){
+compute_couloir_SQL <- function(con, data_raw_name, var_name_id, var_name_age, var_name_perf, nb_couloir){
 
   ## ---- SQL query ---- ##
   best <- paste0("SELECT MIN(",var_name_perf,") AS perf,",var_name_id,",Round(",var_name_age,") AS age FROM ",data_raw_name,"

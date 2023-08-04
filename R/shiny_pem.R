@@ -11,6 +11,7 @@
 #' @importFrom bs4Dash dashboardPage dashboardHeader dashboardSidebar dashboardBody
 #' @export
 bs4Dash_ui <- bs4Dash::dashboardPage(
+
   bs4Dash::dashboardHeader(),
   bs4Dash::dashboardSidebar(),
   bs4Dash::dashboardBody()
@@ -45,6 +46,7 @@ bs4Dash_deps <- htmltools::findDependencies(bs4Dash_ui)
 #' @importFrom bs4Dash box
 #' @export
 my_box <- function(..., title, width = 12, collapsible = TRUE, maximizable = TRUE, closable = FALSE){
+
   tagList(
     bs4Dash::box(..., title = title, width = width, collapsible = collapsible, maximizable = maximizable, closable = closable),
     bs4Dash_deps
@@ -52,92 +54,124 @@ my_box <- function(..., title, width = 12, collapsible = TRUE, maximizable = TRU
 }
 
 
-#' Compute estimation
+#' Compute the estimation
 #'
 #' Function to compute the estimation of the performance.
 #'
-#' @param reactive a list (reactive of the shiny app created by 'epem' function).
-#' @param type indicates whether performance is to be maximized or minimized ('max' by default).
+#' @param parametre a data.frame of the parameters estimated by the model.
+#' @param info a data.frame containing the information of the transformation used on the data to compute the model.
+#' @param FUN the function to fit.
+#' @param type ("min" by default) indicates whether the function estimates a performance to be maximised ("max") or minimised ("min").
+#' @param min_age the minimum age value to compute the estimation (10 by default).
+#' @param max_age the maximum age value to compute the estimation (50 by default).
 #'
 #' @return compute_estimation() returns a data.frame.
 #'
 #' @importFrom data.table rbindlist
 #' @export
-compute_estimation <- function(reactive, type = "max"){
-  age <- seq(0,10,0.1)
+compute_estimation <- function(parametre, info, FUN, type = "min", min_age = 10, max_age = 50){
 
-  ## ---- Estimations ---- ##
-  pred <- data.frame(rbindlist(apply(reactive$data, 1, function(x){
-    param <- c(t(x[reactive$para]))
-    dt <- data.frame(
+  age <- seq(
+    ((min_age-info$mean_age) / info$sd_age) - info$min_age,
+    ((max_age-info$mean_age) / info$sd_age) - info$min_age,
+    0.1
+  )
+
+  if (ncol(parametre) == 6){
+    var <- c("a","b","c","d","e")
+  } else if (ncol(parametre) == 5){
+    var <- c("a","b","c","d")
+  }
+
+  estimation <- data.frame(data.table::rbindlist(apply(parametre, 1, function(x){
+    param <- as.numeric(c(t(x[var])))
+    return(data.frame(
       age = age,
-      perf = do.call(reactive$fun,list(age,as.numeric(param),type)),
+      pred = FUN(age,param,type),
       id = unique(x["id"])
-    )
-
-    return(dt)
+    ))
   })))
+  estimation$age <- ((estimation$age + info$min_age) * info$sd_age) + info$mean_age
+  estimation$pred <- ((estimation$pred + info$min_perf) * info$sd_perf) + info$mean_perf
 
-  ## ---- Création des intervalles d'estimation ---- ##
   quant <- seq(0.05,0.95,0.05)
-  pred <- data.frame(rbindlist(by(pred,pred$id,function(y){
-    t <- rbindlist(tapply(y$perf,y$age,function(x){
-      data.frame(borne = quant, perf = quantile(x,quant))
+  estimation <- data.frame(data.table::rbindlist(by(estimation,estimation$id,function(y){
+    t <- data.table::rbindlist(tapply(y$pred,y$age,function(x){
+      data.frame(borne = quant, pred = quantile(x,quant))
     }), idcol = "age")
     t$age = as.numeric(t$age)
     return(t)
   }), idcol = "id"))
 
-  pred <- reshape(pred, idvar = c("id","age"), timevar = "borne", direction = "wide")
+  estimation <- reshape(estimation, idvar = c("id","age"), timevar = "borne", direction = "wide")
 
-  return(pred)
+  return(estimation)
 }
 
 
 #' Plot the estimation
 #'
-#' Function to plot the estimation of the performance.
+#' Function to compute and plot the estimation of the performance.
 #'
-#' @param reactive a list (reactive of the shiny app created by 'epem' function).
-#' @param type indicates whether performance is to be maximized or minimized ('max' by default).
+#' @param data a data.frame of the performance realized by the athlete (can be NULL).
+#' @param parametre a data.frame of the parameters estimated by the model.
+#' @param info a data.frame containing the information of the transformation used on the data to compute the model.
+#' @param FUN the function to fit.
+#' @param type ("min" by default) indicates whether the function estimates a performance to be maximised ("max") or minimised ("min").
+#' @param min_age minimum value for x axis (10 by default).
+#' @param max_age maximum value for x axis (50 by default).
 #'
-#' @return plot_estimation() returns a plotly object.
+#' @return plot_estimation() returns a ggplot2 object.
 #'
 #' @import ggplot2
-#' @import plotly
 #' @export
-plot_estimation <- function(reactive, type = "max"){
-  if (is.null(reactive$data)){
-    p <- ggplot() + theme_classic()
-    options(warn = -1)
-  } else {
-    bdd <- reactive$data
+plot_estimation <- function(data, parametre, info, FUN, type = "min", min_age = 10, max_age = 50){
 
-    ## ---- Ajout des estimations ---- ##
-    pred <- compute_estimation(reactive, type)
-    p <- ggplot() +
-      geom_ribbon(data = pred, aes(x = age, ymin = perf.0.25, ymax = perf.0.75,
-                                   fill = id), alpha = 0.4) +
-      # geom_ribbon(data = pred, aes(x = age, ymin = perf.0.1, ymax = perf.0.9,
-      #                              fill = id), alpha = 0.3) +
-      geom_ribbon(data = pred, aes(x = age, ymin = perf.0.05, ymax = perf.0.95,
-                                   fill = id), alpha = 0.2) +
-      geom_line(data = pred, aes(x = age, y = perf.0.5, col = id, group = id, text = paste("Athlète :",id,
-                                                                                           "<br>Âge :",round(age,2),
-                                                                                           "<br>Estimation :",round(perf.0.5,2))), size = 1.5)
+  estimation <- compute_estimation(parametre, info, FUN, type, min_age, max_age)
+
+  ## ---- Plot estimation ---- ##
+  p <- ggplot(estimation) +
+    geom_ribbon(aes(x = age, ymin = pred.0.05, ymax = pred.0.95, fill = id, group = id,
+                    text = paste("Athlète :",id,
+                                 "<br>Performance min :",round(pred.0.05,2),
+                                 "<br>Performance max :",round(pred.0.95,2),
+                                 "<br>Âge :",round(age,2))), alpha = 0.2, show.legend = FALSE) +
+    geom_ribbon(aes(x = age, ymin = pred.0.1, ymax = pred.0.9, fill = id, group = id,
+                    text = paste("Athlète :",id,
+                                 "<br>Performance min :",round(pred.0.1,2),
+                                 "<br>Performance max :",round(pred.0.9,2),
+                                 "<br>Âge :",round(age,2))), alpha = 0.3, show.legend = FALSE)
+
+  ## ---- Add median ---- ##
+  if (length(unique(parametre$id)) == 1){
+    p <- p +
+      geom_line(aes(x = age, y = pred.0.5, col = id, group = 1,
+                    text = paste("Athlète :",id,
+                                 "<br>Performance :",round(pred.0.5,2),
+                                 "<br>Âge :",round(age,2))), show.legend = FALSE, linewidth = 1.5)
+  } else {
+    p <- p +
+      geom_line(aes(x = age, y = pred.0.5, col = id, group = id,
+                    text = paste("Athlète :",id,
+                                 "<br>Performance :",round(pred.0.5,2),
+                                 "<br>Âge :",round(age,2))), show.legend = FALSE, linewidth = 1.5)
   }
 
-
-  ## ---- Ggplotly ---- ##
-  if (is.null(reactive$data)){
-    ggplotly(p, tooltip = "text")
-  } else {
-    ggplotly(p + labs(x = "Âge", y = "Performance", col = "Athlète") +
-               theme_classic() + ylim(0,50) +
-               theme(axis.title.x = element_text(size = 12), axis.title.y = element_text(size = 12)),
-             tooltip = "text") %>%
-      layout(legend = list(orientation = "h", x = 0, y = -0.2))
+  ## ---- Add data ---- ##
+  if (!is.null(data)){
+    p <- p +
+      geom_point(data = data, aes(x = age, y = perf, col = id,
+                                  text = paste("Athlète :",id,
+                                               "<br>Performance :",perf,
+                                               "<br>Âge :",round(age,2))), show.legend = FALSE)
   }
+
+  p <- p +
+    labs(x = "Âge", y = "Performance", title = paste("Estimation",data$id)) +
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5))
+
+  return(p)
 }
 
 
@@ -151,9 +185,10 @@ plot_estimation <- function(reactive, type = "max"){
 #'
 #' Function displaying a shiny app to explore a performance estimation model.
 #'
-#' @param path the path where to find the SQL database.
+#' @param args list of arguments required by get_data function.
 #' @param type indicates whether performance is to be maximized or minimized ('max' by default).
 #' @param table_name name of the SQL table containing the parameters ('parameter' by default).
+#' @param info_table_name name of the SQL table containing the transformation informations ('transformation_info' by default).
 #'
 #' @return epem() returns a shiny app.
 #'
@@ -162,7 +197,7 @@ plot_estimation <- function(reactive, type = "max"){
 #' @importFrom plotly plotlyOutput renderPlotly
 #' @importFrom shinyWidgets sendSweetAlert
 #' @export
-epem <- function(path, type = "max", table_name = "parameter"){
+epem <- function(args, type = "max", table_name = "parameter", info_table_name = "transformation_info"){
 
   #### ---- UI part ---- ####
   ui <- tagList(
@@ -217,7 +252,7 @@ epem <- function(path, type = "max", table_name = "parameter"){
         "SELECT name ",
         "FROM pragma_table_info('",table_name,"')"
       )
-      columns <- get_data(query, path)
+      columns <- get_data(query, args)
       if ("e" %in% columns$name){
         r$fun <- f_imap
         r$para <- c("a","b","c","d","e")
@@ -227,12 +262,19 @@ epem <- function(path, type = "max", table_name = "parameter"){
       }
 
       query <- paste0(
+        "SELECT * ",
+        "FROM ",info_table_name
+      )
+      r$info <- get_data(query, args)
+
+      query <- paste0(
         "SELECT DISTINCT id FROM parameter LIMIT 1000"
       )
-      indiv <- get_data(query, path)
+      indiv <- get_data(query, args)
       updateSelectizeInput(
         inputId = "athlete",
-        choices = indiv$id
+        choices = indiv$id,
+        server = TRUE
       )
     })
 
@@ -254,7 +296,7 @@ epem <- function(path, type = "max", table_name = "parameter"){
           "FROM ",table_name," ",
           "WHERE id IN ('",paste(input$athlete, collapse = "','"),"')"
         )
-        r$data <- get_data(query, path)
+        r$data <- get_data(query, args)
 
         shinyjs::show("body")
         progress$inc(1, detail = "Terminé")
@@ -263,7 +305,12 @@ epem <- function(path, type = "max", table_name = "parameter"){
 
     ## ---- Plot ---- ##
     output$estimation <- renderPlotly({
-      plot_estimation(r, type)
+      p <- plot_estimation(data = NULL, parametre = r$data, info = r$info, FUN = r$fun, type = type)
+
+      ggplotly(p + labs(x = "Âge", y = "Performance", col = "Athlète") +
+                 theme(axis.title.x = element_text(size = 12), axis.title.y = element_text(size = 12)),
+               tooltip = "text") %>%
+        layout(legend = list(orientation = "h", x = 0, y = -0.2))
     })
 
   }

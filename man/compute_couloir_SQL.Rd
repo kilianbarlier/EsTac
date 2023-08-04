@@ -14,6 +14,8 @@ compute_couloir_SQL(
 )
 }
 \arguments{
+\item{con}{?.}
+
 \item{data_raw_name}{a character stating the name of the dataset.}
 
 \item{var_name_id}{a character stating the name of the id variable.}
@@ -21,13 +23,12 @@ compute_couloir_SQL(
 \item{var_name_age}{a character stating the name of the age variable.}
 
 \item{var_name_perf}{a character stating the name of the performance variable.}
+
+\item{nb_couloir}{?.}
 }
 \value{
-compute_couloir() returns a dataset with the performance deciles computed by age.
+compute_couloir_SQL() returns a dataset with the performance deciles computed by age.
 }
 \description{
 Function to compute the performance deciles by age.
-}
-\examples{
-# compute_couloir("dt", "licence", "age", "temps")
 }

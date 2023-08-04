@@ -2,14 +2,29 @@
 % Please edit documentation in R/shiny_pem.R
 \name{compute_estimation}
 \alias{compute_estimation}
-\title{Compute estimation}
+\title{Compute the estimation}
 \usage{
-compute_estimation(reactive, type = "max")
+compute_estimation(
+  parametre,
+  info,
+  FUN,
+  type = "min",
+  min_age = 10,
+  max_age = 50
+)
 }
 \arguments{
-\item{reactive}{a list (reactive of the shiny app created by 'epem' function).}
+\item{parametre}{a data.frame of the parameters estimated by the model.}
 
-\item{type}{indicates whether performance is to be maximized or minimized ('max' by default).}
+\item{info}{a data.frame containing the information of the transformation used on the data to compute the model.}
+
+\item{FUN}{the function to fit.}
+
+\item{type}{("min" by default) indicates whether the function estimates a performance to be maximised ("max") or minimised ("min").}
+
+\item{min_age}{the minimum age value to compute the estimation (10 by default).}
+
+\item{max_age}{the maximum age value to compute the estimation (50 by default).}
 }
 \value{
 compute_estimation() returns a data.frame.
