@@ -52,50 +52,44 @@ f_imap <- function(t, p, type = "min"){
 }
 
 
-#' compute_r2 function
+#' compute_metric function
 #'
-#' Function to compute the R2.
+#' Function to compute the R2, R2 adjusted, AIC or BIC.
 #'
 #' @param x a numeric vector.
 #' @param y a numeric vector.
 #' @param para a vector of parameters.
 #' @param FUN a function.
+#' @param metric a character string indicating which metrics to compute. One of "R2" (default), "R2a", "AIC" or "BIC").
 #'
-#' @return compute_r2() returns the R2.
+#' @return compute_metric() returns the chosen metrics.
 #' @export
 #'
 #' @examples
-compute_r2 <- function(x, y, para, FUN){
+compute_metric <- function(x, y, para, FUN, metric = "R2"){
 
-  num <- sum((y - FUN(x,para))^2)
-  denom <- sum((y - mean(y))^2)
-  r2 <- 1 - (num / denom)
+  metric <- tolower(metric)
+  if (metric == "r2"){
+    num <- sum((y - FUN(x,para))^2)
+    denom <- sum((y - mean(y))^2)
+    metric <- 1 - (num / denom)
+  } else if (metric == "r2a"){
+    nbpara <- length(para)
+    num <- (sum((y - FUN(x,para))^2) / (length(y) - nbpara - 1))
+    denom <- (sum((y - mean(y))^2) / (length(y) - 1))
+    metric <- 1 - (num / denom)
+  } else {
+    n <- length(x)
+    nbpara <- length(para)
+    RSS <- sum((y - FUN(x,para))^2)
+    if (metric == "aic"){
+      metric <- n*log(RSS/n) + 2*nbpara + (2*nbpara*(nbpara+1)) / (n-nbpara-1)
+    } else if (metric == "bic"){
+      metric <- n*log(RSS/n) + k*log(n)
+    }
+  }
 
-  return(r2)
-}
-
-
-#' compute_r2a function
-#'
-#' Function to compute the R2 adjusted.
-#'
-#' @param x a numeric vector.
-#' @param y a numeric vector.
-#' @param para a vector of the parameters.
-#' @param FUN a function.
-#'
-#' @return compute_r2a() returns the R2 adjusted.
-#' @export
-#'
-#' @examples
-compute_r2a <- function(x, y, para, FUN){
-
-  nbpara <- length(para)
-  num <- (sum((y - FUN(x,para))^2) / (length(y) - nbpara - 1))
-  denom <- (sum((y - mean(y))^2) / (length(y) - 1))
-  r2a <- 1 - (num / denom)
-
-  return(r2a)
+  return(metric)
 }
 
 
@@ -150,72 +144,12 @@ plot_init <- function(data, FUN, age, para, titre){
 #' @importFrom stats runif rnorm nlminb
 #' @importFrom rlang fn_fmls
 #' @export
-# estap <- function(age, perf, FUN, nbpara, niter = 10, borne = -Inf,
-#                   initial = runif(nbpara), plot = FALSE, grid.age = seq(min(age), max(age), 0.1)){
-#
-#   SQ_methode <- function(p){
-#     sum((perf - FUN(age,p))^2)
-#   }
-#
-#   res <- lapply(c(1:niter), function(x){
-#     sol <- nlminb(start = initial + rnorm(nbpara, 0, 1), SQ_methode)
-#     res <- nlminb(start = sol$par, SQ_methode, lower = borne)
-#     return(
-#       list(
-#         para = res$par,
-#         obj = res$objective
-#       )
-#     )
-#   })
-#
-#   best <- which.min(unlist(lapply(res, function(x){x$obj})))
-#   best_param <- res[[best]]$para
-#   best_obj <- res[[best]]$obj
-#
-#   fit <- FUN(grid.age,best_param)
-#   argument_list <- rlang::fn_fmls(fn = FUN)
-#   if (!is.null(argument_list$type)){
-#     type <- argument_list$type
-#   } else {
-#     type <- "max"
-#   }
-#   perf_pic <- round(fit[get(paste0("which.",type))(fit)],2)
-#   age_pic <- grid.age[get(paste0("which.",type))(fit)]
-#
-#   performance <- data.frame(
-#     age = age,
-#     perf = perf
-#   )
-#
-#   R2 <- compute_r2(age, perf, best_param, FUN)
-#   R2a <- compute_r2a(age, perf, best_param, FUN)
-#
-#   if (plot == TRUE){
-#     p <- plot_init(performance, FUN, grid.age, best_param, "Least squares method")
-#     print(p)
-#   }
-#
-#   final_result <- list(
-#     parametre = best_param,
-#     objectif = best_obj,
-#     R2 = R2,
-#     R2a = R2a,
-#     age_pic = age_pic,
-#     perf_pic = perf_pic
-#   )
-#
-#   return(final_result)
-# }
-
-estap <- function(age, performance, FUN, type = "min", nbpara, niter = 10, borne = -Inf,
+estap <- function(age, perf, FUN, nbpara, niter = 10, borne = -Inf,
                   initial = runif(nbpara), plot = FALSE, grid.age = seq(min(age), max(age), 0.1)){
 
-
-
   SQ_methode <- function(p){
-    sum((performance - FUN(age,p,type = type))^2)
+    sum((perf - FUN(age,p))^2)
   }
-
 
   res <- lapply(c(1:niter), function(x){
     sol <- nlminb(start = initial + rnorm(nbpara, 0, 1), SQ_methode)
@@ -228,57 +162,32 @@ estap <- function(age, performance, FUN, type = "min", nbpara, niter = 10, borne
     )
   })
 
-
   best <- which.min(unlist(lapply(res, function(x){x$obj})))
   best_param <- res[[best]]$para
   best_obj <- res[[best]]$obj
 
-  fit <- FUN(grid.age,best_param,type = type)
-
-
-
-  if (type == "min"){
-    age_pic <- grid.age[which.min(fit)]
-    perf_pic <- round(fit[which.min(fit)],2)
+  fit <- FUN(grid.age,best_param)
+  argument_list <- rlang::fn_fmls(fn = FUN)
+  if (!is.null(argument_list$type)){
+    type <- argument_list$type
+  } else {
+    type <- "max"
   }
-  else if (type == "max"){
-    age_pic <- grid.age[which.max(fit)]
-    perf_pic <- round(fit[which.max(fit)],2)
-  }
+  perf_pic <- round(fit[get(paste0("which.",type))(fit)],2)
+  age_pic <- grid.age[get(paste0("which.",type))(fit)]
 
-
-  perf <- data.frame(
+  performance <- data.frame(
     age = age,
-    perf = performance
-  )
-  pred <- data.frame(
-    age = grid.age,
-    pred = fit
+    perf = perf
   )
 
-
-
-  R2 <- 1 - (sum((performance-FUN(age,best_param,type = type))^2) / sum((performance-mean(performance))^2))
-  R2a <- 1 - ((sum((performance-FUN(age,best_param,type = type))^2)/(length(performance)-nbpara-1)) / (sum((performance-mean(performance))^2)/(length(performance)-1)))
-
-  n<-length(age)
-
-  k<-nbpara
-
-  RSS<-sum((performance-FUN(age,best_param,type = type))^2)
-
-  AIC=n*log(RSS/n) + 2*k+ (2*k*(k+1)) / (n-k-1) #AIC
-
-  BIC=n*log(RSS/n) + k*log(n) #BIC
+  R2 <- compute_metric(age, perf, best_param, FUN, "R2")
+  R2a <- compute_metric(age, perf, best_param, FUN, "R2a")
+  AIC <- compute_metric(age, perf, best_param, FUN, "AIC")
+  BIC <- compute_metric(age, perf, best_param, FUN, "BIC")
 
   if (plot == TRUE){
-    p <- ggplot() +
-      geom_point(data = perf, aes(x = age, y = performance), size = 2, shape = 21, fill = "grey50") +
-      geom_line(data = pred, aes(x = age, y = pred), linewidth = 2, col = "red") +
-      labs(x = "Age", y = "Performance", title = "Least squares method") +
-      theme_linedraw() +
-      theme(plot.title = element_text(hjust = 0.5, size = 18, face = "bold"), axis.text = element_text(size = 11),
-            axis.title.x = element_text(size = 14), axis.title.y = element_text(size = 14))
+    p <- plot_init(performance, FUN, grid.age, best_param, "Least squares method")
     print(p)
   }
 
@@ -295,3 +204,4 @@ estap <- function(age, performance, FUN, type = "min", nbpara, niter = 10, borne
 
   return(final_result)
 }
+

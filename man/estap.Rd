@@ -6,9 +6,8 @@
 \usage{
 estap(
   age,
-  performance,
+  perf,
   FUN,
-  type = "min",
   nbpara,
   niter = 10,
   borne = -Inf,
@@ -19,6 +18,8 @@ estap(
 }
 \arguments{
 \item{age}{a vector containing age data.}
+
+\item{perf}{a vector containing performance data.}
 
 \item{FUN}{the function to fit.}
 
@@ -33,8 +34,6 @@ estap(
 \item{plot}{boolean indicating whether a graph of the result should be displayed (FALSE by default).}
 
 \item{grid.age}{a vector of x.axis values (seq(min(age), max(age), 0.1) by default).}
-
-\item{perf}{a vector containing performance data.}
 }
 \value{
 estap() returns a list including results of the least squares method.
