@@ -85,7 +85,7 @@ compute_metric <- function(x, y, para, FUN, metric = "R2"){
     if (metric == "aic"){
       metric <- n*log(RSS/n) + 2*nbpara + (2*nbpara*(nbpara+1)) / (n-nbpara-1)
     } else if (metric == "bic"){
-      metric <- n*log(RSS/n) + k*log(n)
+      metric <- n*log(RSS/n) + nbpara*log(n)
     }
   }
 
