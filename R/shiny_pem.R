@@ -180,6 +180,7 @@ compute_deriv1 <- function(parametre, info, FUN, type = "min", min_age = 10, max
 #' @return compute_deriv2() returns a data.frame.
 #'
 #' @importFrom data.table rbindlist
+#' @importFrom stats quantile reshape
 #' @export
 compute_deriv2 <- function(parametre, info, FUN, type = "min", min_age = 10, max_age = 50){
 
@@ -427,8 +428,8 @@ plot_speed_progression <- function(parametre, info, FUN, type = "min", min_age =
 #' @return epem() returns a shiny app.
 #'
 #' @import shiny
+#' @import plotly
 #' @importFrom shinyjs hidden show useShinyjs
-#' @importFrom plotly plotlyOutput renderPlotly
 #' @importFrom shinyWidgets sendSweetAlert
 #' @export
 epem <- function(args, type = "max", table_name = "parameter", info_table_name = "transformation_info"){
