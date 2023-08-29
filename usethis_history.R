@@ -11,3 +11,6 @@
 # usethis::use_package("data.table")
 # usethis::use_package("shinyWidgets")
 # usethis::use_package("rlang")
+# usethis::use_package("scales")
+# usethis::use_package("grDevices")
+# usethis::use_package("dplyr")
