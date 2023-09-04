@@ -163,7 +163,7 @@ emils <- function(result){
 
     ## ---- Update input ---- ##
     observe({
-      indiv <- unique(result$data$nom)
+      indiv <- unique(result$data$id)
       updateSelectizeInput(
         inputId = "athlete",
         choices = indiv,
@@ -185,7 +185,7 @@ emils <- function(result){
         on.exit(progress$close())
         progress$set(message = "Importation des données", detail = "Patientez un instant...", value = 0.5)
 
-        r$data <- result$data %>% filter(nom == input$athlete)
+        r$data <- result$data %>% filter(id == input$athlete)
 
         shinyjs::show("body")
         progress$inc(1, detail = "Terminé")
