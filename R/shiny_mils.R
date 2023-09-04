@@ -14,18 +14,18 @@
 plot_workload <- function(ath, data){
 
   ## ---- Data management ---- ##
-  data <- data %>% filter(nom == ath)
+  data <- data %>% filter(id == ath)
   data <- data %>% filter(
-    jour > data$jour[min(which(!is.na(data$rpeLoad)))] &
-      jour < data$jour[max(which(!is.na(data$rpeLoad)))]
-  ) %>% mutate(jour = as.Date(jour))
+    date > data$date[min(which(!is.na(data$srpe)))] &
+      date < data$date[max(which(!is.na(data$srpe)))]
+  ) %>% mutate(date = as.Date(date))
 
   ## -- Plot -- ##
   p <- ggplot(data = data) +
-    geom_rect(aes(xmin = jour, xmax = jour + 1, ymin = 0, ymax = rescale(rpeLoad, to = c(0,1)),
-                  fill = rpeLoad, text = paste("Date:",jour,
-                                               "<br>rpeLoad:",rpeLoad,
-                                               "<br>rpeLoad:",round(rescale(rpeLoad, to = c(0,1)),2))),
+    geom_rect(aes(xmin = date, xmax = date + 1, ymin = 0, ymax = rescale(srpe, to = c(0,1)),
+                  fill = srpe, text = paste("Date:",date,
+                                            "<br>rpeLoad:",srpe,
+                                            "<br>rpeLoad:",round(rescale(srpe, to = c(0,1)),2))),
               stat = "identity") +
     scale_x_date(date_breaks = "1 month", date_minor_breaks = "2 week") +
     theme_bw() + labs(title = as.character(ath)) +
@@ -58,11 +58,11 @@ plot_workload <- function(ath, data){
 plot_state <- function(ath, data, n_state){
 
   ## ---- Data management ---- ##
-  data <- data %>% filter(nom == ath)
+  data <- data %>% filter(id == ath)
   data <- data %>% filter(
-    jour > data$jour[min(which(!is.na(data$rpeLoad)))] &
-      jour < data$jour[max(which(!is.na(data$rpeLoad)))]
-  ) %>% mutate(jour = as.Date(jour))
+    date > data$date[min(which(!is.na(data$srpe)))] &
+      date < data$date[max(which(!is.na(data$srpe)))]
+  ) %>% mutate(date = as.Date(date))
 
   ## ---- Plot ---- ##
   if (n_state == 3){
@@ -78,7 +78,7 @@ plot_state <- function(ath, data, n_state){
     theme(axis.text.x = element_text(size = 10),
           axis.text.y = element_text(size = 10),
           axis.title.y = element_text(size = 12))+
-    geom_rect(aes(xmin = jour, xmax = jour + 1, ymin = 0, ymax = S1, text = paste("Date:",jour,
+    geom_rect(aes(xmin = date, xmax = date + 1, ymin = 0, ymax = S1, text = paste("Date:",date,
                                                                                   "<br>State 1:",round(S1,2))),
               fill = col[1], alpha = 0.5) +
     ylab("MILS state \n probability")
@@ -88,7 +88,7 @@ plot_state <- function(ath, data, n_state){
       done_states <- paste0("S",unique(c(1:(i-1))))
       state <- paste0("S",i)
       p <- p +
-        geom_rect(aes_string(xmin = "jour", xmax = "jour + 1" , ymin = paste0(done_states, collapse = "+"),
+        geom_rect(aes_string(xmin = "date", xmax = "date + 1" , ymin = paste0(done_states, collapse = "+"),
                              ymax = paste0(paste0(done_states, collapse = "+"), "+", state),
                              text = shQuote(paste0("State ",i))),
                   alpha = 0.5, fill = col[i])

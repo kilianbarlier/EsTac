@@ -503,7 +503,7 @@ epem <- function(args, type = "max", table_name = "parameter", info_table_name =
       r$info <- get_data(query, args)
 
       query <- paste0(
-        "SELECT DISTINCT id FROM parameter LIMIT 1000"
+        "SELECT DISTINCT id FROM parameter"
       )
       indiv <- get_data(query, args)
       updateSelectizeInput(
