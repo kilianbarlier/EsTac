@@ -74,7 +74,7 @@ compute_estimation <- function(parametre, info, FUN, type = "min", min_age = 10,
   age <- seq(
     ((min_age-info$mean_age) / info$sd_age) - info$min_age,
     ((max_age-info$mean_age) / info$sd_age) - info$min_age,
-    0.1
+    0.01
   )
 
   if (ncol(parametre) == 6){
@@ -129,7 +129,7 @@ compute_deriv1 <- function(parametre, info, FUN, type = "min", min_age = 10, max
   age <- seq(
     ((min_age-info$mean_age) / info$sd_age) - info$min_age,
     ((max_age-info$mean_age) / info$sd_age) - info$min_age,
-    0.1
+    0.01
   )
 
   if (ncol(parametre) == 6){
@@ -187,7 +187,7 @@ compute_deriv2 <- function(parametre, info, FUN, type = "min", min_age = 10, max
   age <- seq(
     ((min_age-info$mean_age) / info$sd_age) - info$min_age,
     ((max_age-info$mean_age) / info$sd_age) - info$min_age,
-    0.1
+    0.01
   )
 
   if (ncol(parametre) == 6){
