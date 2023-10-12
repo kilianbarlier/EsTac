@@ -16,16 +16,16 @@ plot_workload <- function(ath, data){
   ## ---- Data management ---- ##
   data <- data %>% filter(id == ath)
   data <- data %>% filter(
-    date > data$date[min(which(!is.na(data$srpe)))] &
-      date < data$date[max(which(!is.na(data$srpe)))]
+    date > data$date[min(which(!is.na(data$load)))] &
+      date < data$date[max(which(!is.na(data$load)))]
   ) %>% mutate(date = as.Date(date))
 
   ## -- Plot -- ##
   p <- ggplot(data = data) +
-    geom_rect(aes(xmin = date, xmax = date + 1, ymin = 0, ymax = rescale(srpe, to = c(0,1)),
-                  fill = srpe, text = paste("Date:",date,
-                                            "<br>rpeLoad:",srpe,
-                                            "<br>rpeLoad:",round(rescale(srpe, to = c(0,1)),2))),
+    geom_rect(aes(xmin = date, xmax = date + 1, ymin = 0, ymax = rescale(load, to = c(0,1)),
+                  fill = load, text = paste("Date:",date,
+                                            "<br>Load:",load,
+                                            "<br>Load rescaled:",round(rescale(load, to = c(0,1)),2))),
               stat = "identity") +
     scale_x_date(date_breaks = "1 month", date_minor_breaks = "2 week") +
     theme_bw() + labs(title = as.character(ath)) +
@@ -60,8 +60,8 @@ plot_state <- function(ath, data, n_state){
   ## ---- Data management ---- ##
   data <- data %>% filter(id == ath)
   data <- data %>% filter(
-    date > data$date[min(which(!is.na(data$srpe)))] &
-      date < data$date[max(which(!is.na(data$srpe)))]
+    date > data$date[min(which(!is.na(data$load)))] &
+      date < data$date[max(which(!is.na(data$load)))]
   ) %>% mutate(date = as.Date(date))
 
   ## ---- Plot ---- ##
